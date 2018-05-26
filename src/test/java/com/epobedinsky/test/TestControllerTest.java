@@ -41,7 +41,7 @@ public class TestControllerTest {
     @Test(expected = RateCheckAspect.RateExceededException.class)
     public void testBlocking()  {
         HttpServletRequest mock = Mockito.mock(HttpServletRequest.class);
-        Mockito.when(mock.getRemoteAddr()).thenReturn("test_ip");
+        Mockito.when(mock.getRemoteAddr()).thenReturn("test_ip3");
         blocking(mock);
         controller.get(mock); //here exception should be thrown
     }
@@ -49,7 +49,7 @@ public class TestControllerTest {
     @Test(expected = RateCheckAspect.RateExceededException.class)
     public void testBlockingTwice() throws InterruptedException {
         HttpServletRequest mock = Mockito.mock(HttpServletRequest.class);
-        Mockito.when(mock.getRemoteAddr()).thenReturn("test_ip");
+        Mockito.when(mock.getRemoteAddr()).thenReturn("test_ip4");
         blocking(mock);
         Thread.sleep(1000);
         muteBlockedServiceCalls(mock);
@@ -60,7 +60,7 @@ public class TestControllerTest {
     @Test
     public void testBlockUnblock() throws InterruptedException {
         HttpServletRequest mock = Mockito.mock(HttpServletRequest.class);
-        Mockito.when(mock.getRemoteAddr()).thenReturn("test_ip");
+        Mockito.when(mock.getRemoteAddr()).thenReturn("test_ip5");
         blocking(mock);
         muteException(() -> controller.get(mock));
         Thread.sleep(3000);
