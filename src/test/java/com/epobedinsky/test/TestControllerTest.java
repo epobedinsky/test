@@ -57,6 +57,16 @@ public class TestControllerTest {
         controller.get(mock); //here exception should be thrown
     }
 
+    @Test
+    public void testBlockUnblock() throws InterruptedException {
+        HttpServletRequest mock = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(mock.getRemoteAddr()).thenReturn("test_ip");
+        blocking(mock);
+        muteException(() -> controller.get(mock));
+        Thread.sleep(3000);
+        Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK);
+    }
+
     private void blocking(HttpServletRequest mock)  {
         Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK);
         Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK);
