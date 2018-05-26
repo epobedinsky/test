@@ -5,5 +5,5 @@ service:
     url: http://localhost:8080
 
 rate-check-aspect:
-  period: 3
-  max-rate: 3
+  period: 5
+  max-rate: 50
