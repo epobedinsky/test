@@ -10,8 +10,8 @@ import javax.annotation.PostConstruct;
 
 @Configuration
 public class RateCheckConfig {
-    @Value("${rate-check-aspect.period:5}")
-    private long periodMinutes;
+    @Value("${rate-check-aspect.period:1}")
+    private long periodSeconds;
 
     @Value("${rate-check-aspect.max-rate:50}")
     private int maxRate = 3;
@@ -21,7 +21,7 @@ public class RateCheckConfig {
 
     @PostConstruct
     public void postContruct() {
-        periodMillis = periodMinutes * 60000;
+        periodMillis = periodSeconds * 1000;
     }
 
     @Bean
