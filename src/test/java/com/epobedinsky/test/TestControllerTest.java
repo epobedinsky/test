@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties
 @EnableAutoConfiguration
-public class TestControllerTest {
+public class TestControllerTest extends BaseTest {
     @Autowired
     private TestController controller;
 
@@ -42,7 +42,7 @@ public class TestControllerTest {
     public void testBlocking()  {
         HttpServletRequest mock = Mockito.mock(HttpServletRequest.class);
         Mockito.when(mock.getRemoteAddr()).thenReturn("test_ip3");
-        blocking(mock);
+        blocking(mock, controller);
         controller.get(mock); //here exception should be thrown
     }
 
@@ -50,9 +50,9 @@ public class TestControllerTest {
     public void testBlockingTwice() throws InterruptedException {
         HttpServletRequest mock = Mockito.mock(HttpServletRequest.class);
         Mockito.when(mock.getRemoteAddr()).thenReturn("test_ip4");
-        blocking(mock);
+        blocking(mock, controller);
         Thread.sleep(1000);
-        muteBlockedServiceCalls(mock);
+        muteBlockedServiceCalls(mock, controller);
 
         controller.get(mock); //here exception should be thrown
     }
@@ -61,29 +61,9 @@ public class TestControllerTest {
     public void testBlockUnblock() throws InterruptedException {
         HttpServletRequest mock = Mockito.mock(HttpServletRequest.class);
         Mockito.when(mock.getRemoteAddr()).thenReturn("test_ip5");
-        blocking(mock);
+        blocking(mock, controller);
         muteException(() -> controller.get(mock));
         Thread.sleep(3000);
         Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK);
-    }
-
-    private void blocking(HttpServletRequest mock)  {
-        Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK);
-        Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK);
-        Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK);
-    }
-
-    private void muteBlockedServiceCalls(HttpServletRequest mock)  {
-        muteException(() -> controller.get(mock));
-        muteException(() -> controller.get(mock));
-    }
-
-    private void muteException(Runnable call) {
-        try {
-            call.run();
-            Assert.assertFalse("Exception wasn't thrown", false);
-        } catch (RateCheckAspect.RateExceededException e) {
-
-        }
     }
 }
