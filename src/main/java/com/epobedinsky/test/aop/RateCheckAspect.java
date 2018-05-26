@@ -20,16 +20,16 @@ public class RateCheckAspect {
     private RateChecker checker;
 
     @Before("execution(* com.epobedinsky.test.controller.TestController.*(..)) && args(request,..)")
-    public void before(JoinPoint joinPoint, HttpServletRequest request) throws RateExceeededException {
+    public void before(JoinPoint joinPoint, HttpServletRequest request)  {
         logger.info("Check requests count for {}", joinPoint);
 
         if (checker.isExceeded(request.getRemoteAddr())) {
             logger.info("Rate exceeded for API {}", request.getRemoteAddr());
-            throw new  RateExceeededException();
+            throw new  RateExceededException();
         }
     }
 
-    public static class RateExceeededException extends Exception {
+    public static class RateExceededException extends RuntimeException {
 
     };
 }

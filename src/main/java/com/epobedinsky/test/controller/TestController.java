@@ -14,12 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 public class TestController {
 
     @GetMapping
-    public ResponseEntity<String> get(HttpServletRequest request) throws RateCheckAspect.RateExceeededException {
+    public ResponseEntity<String> get(HttpServletRequest request)  {
         return ResponseEntity.ok("\n");
     }
 
-    @ExceptionHandler(RateCheckAspect.RateExceeededException.class)
-    public ResponseEntity handleEntitlementException(RateCheckAspect.RateExceeededException e) {
+    @ExceptionHandler(RateCheckAspect.RateExceededException.class)
+    public ResponseEntity handleEntitlementException(RateCheckAspect.RateExceededException e) {
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
     }
 

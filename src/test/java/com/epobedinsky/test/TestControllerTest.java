@@ -26,7 +26,7 @@ public class TestControllerTest {
     private TestController controller;
 
     @Test
-    public void testNonBLocking() throws InterruptedException, RateCheckAspect.RateExceeededException {
+    public void testNonBLocking() throws InterruptedException {
         HttpServletRequest mock = Mockito.mock(HttpServletRequest.class);
         Mockito.when(mock.getRemoteAddr()).thenReturn("test_ip");
         HttpServletRequest mock2 = Mockito.mock(HttpServletRequest.class);
@@ -34,17 +34,46 @@ public class TestControllerTest {
         Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK);
         Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK);
         Assert.assertTrue(controller.get(mock2).getStatusCode() == HttpStatus.OK);
-        Thread.sleep(3);
+        Thread.sleep(3000);
         Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK);
     }
 
-    @Test(expected = RateCheckAspect.RateExceeededException.class)
-    public void testBlocking() throws RateCheckAspect.RateExceeededException {
+    @Test(expected = RateCheckAspect.RateExceededException.class)
+    public void testBlocking()  {
         HttpServletRequest mock = Mockito.mock(HttpServletRequest.class);
         Mockito.when(mock.getRemoteAddr()).thenReturn("test_ip");
-        Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK);
-        Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK);
-        Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK);
+        blocking(mock);
         controller.get(mock); //here exception should be thrown
+    }
+
+    @Test(expected = RateCheckAspect.RateExceededException.class)
+    public void testBlockingTwice() throws InterruptedException {
+        HttpServletRequest mock = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(mock.getRemoteAddr()).thenReturn("test_ip");
+        blocking(mock);
+        Thread.sleep(1000);
+        muteBlockedServiceCalls(mock);
+
+        controller.get(mock); //here exception should be thrown
+    }
+
+    private void blocking(HttpServletRequest mock)  {
+        Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK);
+        Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK);
+        Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK);
+    }
+
+    private void muteBlockedServiceCalls(HttpServletRequest mock)  {
+        muteException(() -> controller.get(mock));
+        muteException(() -> controller.get(mock));
+    }
+
+    private void muteException(Runnable call) {
+        try {
+            call.run();
+            Assert.assertFalse("Exception wasn't thrown", false);
+        } catch (RateCheckAspect.RateExceededException e) {
+
+        }
     }
 }
