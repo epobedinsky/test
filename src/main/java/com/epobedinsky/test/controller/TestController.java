@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 public class TestController {
 
     @GetMapping
-    public ResponseEntity<String> get(HttpServletRequest request) {
+    public ResponseEntity<String> get(HttpServletRequest request) throws RateCheckAspect.RateExceeededException {
         return ResponseEntity.ok("\n");
     }
 
