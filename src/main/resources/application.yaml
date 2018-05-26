@@ -1,0 +1,9 @@
+service:
+  rest:
+    url: http://localhost:8080
+  web:
+    url: http://localhost:8080
+
+rate-check-aspect:
+  period: 3
+  max-rate: 3
