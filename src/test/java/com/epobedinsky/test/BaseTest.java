@@ -22,7 +22,7 @@ public class BaseTest {
     protected void muteException(Runnable call) {
         try {
             call.run();
-            Assert.assertFalse("Exception wasn't thrown", false);
+            Assert.assertTrue("Exception wasn't thrown", false);
         } catch (RateCheckAspect.RateExceededException e) {
 
         }

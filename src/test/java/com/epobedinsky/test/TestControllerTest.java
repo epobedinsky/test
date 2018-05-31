@@ -66,4 +66,21 @@ public class TestControllerTest extends BaseTest {
         Thread.sleep(3000);
         Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK);
     }
+
+    @Test
+    public void testBlockingBetweenPeriods() throws InterruptedException {
+        HttpServletRequest mock = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(mock.getRemoteAddr()).thenReturn("test_ip6");
+        Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK); //1
+        Thread.sleep(2000);
+        Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK); //2
+        Thread.sleep(1010); //3 - 3 seconds passed after the first request, the counter set to 0
+        Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK); //this should block, but it doesn't
+        muteException(() -> controller.get(mock)); //4
+        Thread.sleep(1010);
+        muteException(() -> controller.get(mock)); //5
+        Thread.sleep(2000);
+        Assert.assertTrue(controller.get(mock).getStatusCode() == HttpStatus.OK); //6
+        controller.get(mock); //here exception should be thrown
+    }
 }
