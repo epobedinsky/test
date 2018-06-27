@@ -19,7 +19,7 @@ public class RateCheckAspect {
     @Autowired
     private RateChecker checker;
 
-    @Before("execution(* com.epobedinsky.test.controller.TestController.*(..)) && args(request,..)")
+    @Before("@annotation(com.epobedinsky.test.aop.RateCheckable) && args(request,..)")
     public void before(JoinPoint joinPoint, HttpServletRequest request)  {
         logger.info("Check requests count for {}", joinPoint);
 
