@@ -1,6 +1,7 @@
 package com.epobedinsky.test.controller;
 
 import com.epobedinsky.test.aop.RateCheckAspect;
+import com.epobedinsky.test.aop.RateCheckable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 public class TestController {
 
     @GetMapping
+    @RateCheckable
     public ResponseEntity<String> get(HttpServletRequest request)  {
         return ResponseEntity.ok("\n");
     }
