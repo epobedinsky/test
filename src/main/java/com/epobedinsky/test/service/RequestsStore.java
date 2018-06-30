@@ -77,17 +77,18 @@ public interface RequestsStore {
         }
 
         public void adjust(long millis) {
+            if (requests.isEmpty()) {
+                return;
+            }
             Iterator<Long> it =  requests.iterator();
-            boolean isContinue = true;
-            while (it.hasNext() && isContinue) {
-                Long r = it.next();
+            Long r = 0l;
+            do {
+                r = it.next();
                 if (r < millis) {
                     it.remove();
                     count--;
-                } else {
-                    isContinue = false;
                 }
-            }
+            } while(it.hasNext() && r < millis);
 
             firstRequestMillis = requests.first();
         }
