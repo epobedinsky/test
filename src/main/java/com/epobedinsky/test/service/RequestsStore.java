@@ -3,7 +3,6 @@ package com.epobedinsky.test.service;
 import java.util.Iterator;
 import java.util.NavigableSet;
 import java.util.TreeSet;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
@@ -43,12 +42,12 @@ public interface RequestsStore {
         private long firstRequestMillis;
         private int count;
         private boolean isBlocked;
-        private NavigableSet<Request> requests = new TreeSet<>();
+        private NavigableSet<Long> requests = new TreeSet<>();
 
         public RequestsHistory() {
             count = 0;
             inc();
-            firstRequestMillis = requests.first().millis;
+            firstRequestMillis = requests.first();
             isBlocked = false;
         }
 
@@ -69,7 +68,7 @@ public interface RequestsStore {
         }
 
         public void inc() {
-            requests.add(new Request(now()));
+            requests.add(now());
             count++;
         }
 
@@ -78,11 +77,11 @@ public interface RequestsStore {
         }
 
         public void adjust(long millis) {
-            Iterator<Request> it =  requests.iterator();
+            Iterator<Long> it =  requests.iterator();
             boolean isContinue = true;
             while (it.hasNext() && isContinue) {
-                Request r = it.next();
-                if (r.millis < millis) {
+                Long r = it.next();
+                if (r < millis) {
                     it.remove();
                     count--;
                 } else {
@@ -90,24 +89,11 @@ public interface RequestsStore {
                 }
             }
 
-            firstRequestMillis = requests.first().millis;
+            firstRequestMillis = requests.first();
         }
 
         public long getLastRequestMillis() {
-            return requests.last().millis;
-        }
-
-        class Request implements Comparable<Request> {
-            public long millis;
-
-            public Request(long millis) {
-                this.millis = millis;
-            }
-
-            @Override
-            public int compareTo(Request o) {
-                return Long.compare(millis, o.millis);
-            }
+            return requests.last();
         }
     }
 }
