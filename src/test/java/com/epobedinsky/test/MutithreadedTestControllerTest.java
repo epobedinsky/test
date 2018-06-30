@@ -35,6 +35,7 @@ public class MutithreadedTestControllerTest extends BaseTest {
 
     @Test
     public void testMutithreaded() throws InterruptedException, ExecutionException {
+        System.out.println("-------- testMultithreaded started -------------");
         ExecutorService service = Executors.newFixedThreadPool(3);
         List<Future<ResponseEntity>> futures = service.invokeAll(new ArrayList<Callable<ResponseEntity>>(){{
             //the first thread: blocking, then unblock
@@ -75,5 +76,7 @@ public class MutithreadedTestControllerTest extends BaseTest {
                 Assert.assertTrue(future.get().getStatusCode() == HttpStatus.OK);
             }
         }
+
+        System.out.println("-------- testMultithreaded finished -------------");
     }
 }
