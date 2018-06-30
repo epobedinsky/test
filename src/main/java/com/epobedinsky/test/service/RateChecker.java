@@ -32,7 +32,7 @@ public class RateChecker {
             throw new IllegalArgumentException("ipAddress is empty");
         }
 
-        RequestsStore.Request res = store.processNewRequest(ipAddress, this::process);
+        RequestsStore.RequestsHistory res = store.processNewRequest(ipAddress, this::process);
 
         if (res != null) {
             return res.isBlocked();
@@ -41,21 +41,29 @@ public class RateChecker {
         return false;
     }
 
-    private RequestsStore.Request process(String ipAddress, RequestsStore.Request existingRecord) {
+    private RequestsStore.RequestsHistory process(String ipAddress, RequestsStore.RequestsHistory existingRecord) {
         //There were no requests from this ip
         if (existingRecord == null) {
-            return new RequestsStore.Request();
+            return new RequestsStore.RequestsHistory();
         }
 
-        if (now() - existingRecord.getFirstRequestMillis() < config.getPeriodMillis()) {
+        long now = now();
+        if (now - existingRecord.getFirstRequestMillis() < config.getPeriodMillis()) {
             //New request from recorded ip within check period
             existingRecord.inc();
-            if (existingRecord.getCount() >= config.getMaxRate()) {
+            if (existingRecord.getCount() > config.getMaxRate()) {
                 existingRecord.block();
             }
         } else {
+            existingRecord.inc();
+            existingRecord.adjust(now - config.getPeriodMillis());
+            if (existingRecord.getCount() > config.getMaxRate()) {
+                existingRecord.block();
+            } else {
+                existingRecord.unblock();
+            }
             //Check period is over, reset requests for this ip
-            return new RequestsStore.Request();
+            //return new RequestsStore.RequestsHistory();
         }
 
         return existingRecord;

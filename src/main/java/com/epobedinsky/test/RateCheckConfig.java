@@ -13,6 +13,12 @@ public class RateCheckConfig {
     @Value("${rate-check-aspect.period:1}")
     private long periodSeconds;
 
+    @Value("${rate-check-aspect.gc.period:1}")
+    private long gcPeriodSeconds;
+
+    @Value("${rate-check-aspect.gc.enabled:true}")
+    private boolean gcEnabled;
+
     @Value("${rate-check-aspect.max-rate:50}")
     private int maxRate = 3;
 
@@ -35,5 +41,13 @@ public class RateCheckConfig {
 
     public long getPeriodMillis() {
         return periodMillis;
+    }
+
+    public long getGcPeriodSeconds() {
+        return gcPeriodSeconds;
+    }
+
+    public boolean isGcEnabled() {
+        return gcEnabled;
     }
 }

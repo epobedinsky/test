@@ -1,6 +1,11 @@
 package com.epobedinsky.test.service;
 
+import java.util.Iterator;
+import java.util.NavigableSet;
+import java.util.TreeSet;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 import static com.epobedinsky.test.util.Util.*;
 
@@ -9,7 +14,7 @@ import static com.epobedinsky.test.util.Util.*;
  */
 public interface RequestsStore {
     /**
-     * Process upcoming Request object that can found in this store by ip param by processFunction applying
+     * Process upcoming RequestsHistory object that can found in this store by ip param by processFunction applying
      * and get the result of processing
      *
      * @param ip ip address the new request came from
@@ -18,30 +23,41 @@ public interface RequestsStore {
      *
      * R apply(T t, U u) function of it has the following arguments:
      * t - ipAddress of a new request
-     * u - existing Request for this ip. null if there were no added Request objects so far
+     * u - existing RequestsHistory for this ip. null if there were no added RequestsHistory objects so far
      *
-     * Return value (R) - Request object after processing
+     * Return value (R) - RequestsHistory object after processing
      *
-     * @return  Request object after processing
+     * @return  RequestsHistory object after processing
      */
-    Request processNewRequest(String ip,
-                              BiFunction<String, Request, Request> processFunction);
+    RequestsHistory processNewRequest(String ip,
+                                      BiFunction<String, RequestsHistory, RequestsHistory> processFunction);
 
-    class Request {
+    /**
+     * Purge RequestStore according to specified whichToDelete predicate
+     *
+     * @param whichToDelete Should be not null
+     */
+    void purge(Predicate<RequestsHistory> whichToDelete);
+
+    class RequestsHistory {
         private long firstRequestMillis;
         private int count;
         private boolean isBlocked;
+        private NavigableSet<Request> requests = new TreeSet<>();
 
-        public Request() {
-            firstRequestMillis = now();
+        public RequestsHistory() {
             count = 0;
+            inc();
+            firstRequestMillis = requests.first().millis;
             isBlocked = false;
         }
 
         public void block() {
-            firstRequestMillis = now();
-            count = 0;
             isBlocked = true;
+        }
+
+        public void unblock() {
+            isBlocked = false;
         }
 
         public long getFirstRequestMillis() {
@@ -53,11 +69,45 @@ public interface RequestsStore {
         }
 
         public void inc() {
+            requests.add(new Request(now()));
             count++;
         }
 
         public boolean isBlocked() {
             return isBlocked;
+        }
+
+        public void adjust(long millis) {
+            Iterator<Request> it =  requests.iterator();
+            boolean isContinue = true;
+            while (it.hasNext() && isContinue) {
+                Request r = it.next();
+                if (r.millis < millis) {
+                    it.remove();
+                    count--;
+                } else {
+                    isContinue = false;
+                }
+            }
+
+            firstRequestMillis = requests.first().millis;
+        }
+
+        public long getLastRequestMillis() {
+            return requests.last().millis;
+        }
+
+        class Request implements Comparable<Request> {
+            public long millis;
+
+            public Request(long millis) {
+                this.millis = millis;
+            }
+
+            @Override
+            public int compareTo(Request o) {
+                return Long.compare(millis, o.millis);
+            }
         }
     }
 }

@@ -7,3 +7,5 @@ service:
 rate-check-aspect:
   period: 60
   max-rate: 50
+  gc:
+    period: 60
